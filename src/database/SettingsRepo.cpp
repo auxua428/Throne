@@ -219,6 +219,7 @@ namespace Configs {
             {"warp_reserved", &warp_reserved},
             {"warp_masque_ifc_addrs", &warp_masque_ifc_addrs},
             {"warp_api_hosts", &warp_api_hosts},
+            {"profile_table_column_order", &profile_table_column_order},
         };
     }
 

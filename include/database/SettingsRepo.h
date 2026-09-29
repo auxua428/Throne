@@ -135,6 +135,8 @@ namespace Configs {
         bool show_config_security = false;
         // -1 until a filter column has been used.
         int last_filter_column = -1;
+        // Profiles table column visual order (logical indices, left to right); empty = default.
+        QStringList profile_table_column_order = {};
 
         // Mirrors of the registrations we last wrote to the OS; startup re-registers only when they differ.
         QString url_scheme_mirror = "";

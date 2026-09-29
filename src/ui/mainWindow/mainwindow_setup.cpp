@@ -475,6 +475,37 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         }
         Configs::dataManager->groupsRepo->Save(Configs::dataManager->groupsRepo->CurrentGroup());
     });
+
+    // Profiles 表头：拖动列换序后持久化到 settingsRepo，启动时恢复视觉顺序。
+    auto *profilesHeader = ui->profilesTableView->horizontalHeader();
+    connect(profilesHeader, &QHeaderView::sectionMoved, this, [this]() {
+        auto *h = ui->profilesTableView->horizontalHeader();
+        QStringList order;
+        for (int v = 0; v < h->count(); ++v) order.append(QString::number(h->logicalIndex(v)));
+        Configs::dataManager->settingsRepo->profile_table_column_order = order;
+        Configs::dataManager->settingsRepo->Save();
+    });
+    {
+        const QStringList sl = Configs::dataManager->settingsRepo->profile_table_column_order;
+        auto *h = ui->profilesTableView->horizontalHeader();
+        if (sl.size() == h->count()) {
+            QList<int> order;
+            bool ok = true;
+            for (const auto &s : sl) {
+                bool conv = false;
+                const int v = s.toInt(&conv);
+                if (!conv || v < 0 || v >= h->count()) { ok = false; break; }
+                order.append(v);
+            }
+            if (ok) {
+                for (int v = 0; v < h->count(); ++v) {
+                    const int cur = h->visualIndex(order.at(v));
+                    if (cur != v) h->moveSection(cur, v);
+                }
+            }
+        }
+    }
+
     ui->profilesTableView->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->profilesTableView->horizontalHeader(), &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
         auto* header = ui->profilesTableView->horizontalHeader();

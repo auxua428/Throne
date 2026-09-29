@@ -69,6 +69,10 @@ public:
 
         connect(this, &QHeaderView::sectionResized, this, &ProfilesTableFilterHeader::adjustPositions);
 
+        // 允许拖动列头左右调换列顺序（如名称移到地址前）。
+        setSectionsMovable(true);
+        connect(this, &QHeaderView::sectionMoved, this, &ProfilesTableFilterHeader::adjustPositions);
+
         setFiltersVisible(false);
     }
 
@@ -183,6 +187,8 @@ public slots:
         const int topPos = height() - editHeight - 4;
 
         auto place = [&](QLineEdit *edit, int section) {
+            if (isSectionHidden(section)) { edit->hide(); return; }
+            edit->show();
             edit->setGeometry(sectionViewportPosition(section) + 2, topPos, sectionSize(section) - 4, editHeight);
         };
         place(type_filter, ProfilesTableModel::ColType);
@@ -191,6 +197,7 @@ public slots:
         place(test_filter, ProfilesTableModel::ColTestResult);
     }
 
+private slots:
 signals:
     void typeFilterChanged(const QString &text);
     void addressFilterChanged(const QString &text);
